@@ -1,0 +1,119 @@
+Endee is a high-performance vector database designed for semantic similarity search. It provides a simple yet powerful API for storing and querying vector embeddings at scale.
+
+KEY FEATURES
+
+1. Fast Similarity Search
+Endee uses the HNSW (Hierarchical Navigable Small World) algorithm for approximate nearest neighbor search. This enables sub-millisecond query latency even with millions of vectors.
+
+2. Flexible Index Types
+- Dense Indexes: Pure semantic search with vector embeddings
+- Hybrid Indexes: Combine dense vectors with sparse vectors for improved retrieval
+
+3. Multiple Distance Metrics
+- Cosine Similarity: Best for normalized embeddings
+- L2 Distance: Euclidean distance in vector space
+- Inner Product: For unnormalized vectors
+
+4. Quantization Options
+Choose the right balance between accuracy and storage:
+- BINARY: Maximum compression
+- INT8D: Default, good balance
+- INT16D: Higher precision
+- FLOAT16: Near-full precision
+- FLOAT32: Maximum accuracy
+
+5. Metadata and Filtering
+Store arbitrary metadata with each vector and filter results using:
+- $eq: Exact match
+- $in: Match any in list
+- $range: Numeric range [0-999]
+
+GETTING STARTED
+
+Installation is simple with Docker:
+```
+docker compose up -d
+```
+
+Or build from source on Linux/macOS with CPU-optimized flags (AVX2, AVX512, NEON).
+
+The dashboard runs on localhost:8080 for visual management and monitoring.
+
+PYTHON SDK
+
+The Python client makes it easy to integrate Endee into your applications:
+
+1. Create an index with specified dimension and distance metric
+2. Upsert vectors with metadata in batches up to 1000
+3. Query with top-k and quality parameter ef
+4. Include filters to restrict results
+
+ARCHITECTURE
+
+Endee stores data in a configurable directory and uses memory-mapped files for efficient access. The HNSW graph structure enables logarithmic search complexity.
+
+Index construction parameters M and ef_con control the graph connectivity and construction quality, affecting the accuracy/speed trade-off.
+
+USE CASES
+
+Endee powers a variety of AI applications:
+
+- RAG Systems: Retrieve relevant context for language models
+- Semantic Search: Find documents by meaning, not keywords
+- Recommendation Engines: Suggest similar items
+- Duplicate Detection: Identify near-duplicate content
+- Clustering: Group similar items automatically
+
+PERFORMANCE
+
+On commodity hardware, Endee can handle:
+- Millions of vectors in a single index
+- Thousands of queries per second
+- Sub-10ms query latency (p95)
+- Efficient batch ingestion
+
+The actual performance depends on vector dimension, index parameters, and hardware specifications.
+
+BEST PRACTICES
+
+1. Choose dimension based on your embedding model (common: 384, 768, 1536)
+2. Use INT8D precision for most applications (balances accuracy and speed)
+3. Set M=16 and ef_con=128 for general use; increase for higher accuracy
+4. Normalize vectors when using cosine similarity
+5. Batch upserts for faster ingestion
+6. Monitor index statistics via the dashboard
+
+AUTHENTICATION
+
+By default, Endee runs without authentication for development. For production, set the NDD_AUTH_TOKEN environment variable and provide the same token in API requests.
+
+PERSISTENCE
+
+All data is stored in the configured data directory and persists across restarts. Regular backups are recommended using standard filesystem backup tools.
+
+SCALING
+
+For horizontal scaling, consider:
+- Sharding by metadata categories
+- Load balancing across multiple instances
+- Caching frequently queried vectors
+- Using hybrid indexes for better recall
+
+MONITORING
+
+The dashboard provides real-time metrics:
+- Index size and vector count
+- Query latency percentiles
+- Memory usage
+- Request throughput
+
+LIMITATIONS
+
+Current version limitations:
+- Maximum dimension: 10,000
+- Maximum top-k: 512
+- Maximum ef: 1024
+- Range filter values: [0-999]
+- Max batch size: 1000 vectors
+
+These limits balance performance with practical use cases.
